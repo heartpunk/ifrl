@@ -7,12 +7,17 @@ worker/REAPI execution machinery.
 
 - `flake.nix` is the common Nix dependency flake. The current suite-wide
   nixpkgs pin is shared here.
+- `MODULE.bazel` publishes the shared worker extensions and rules to Bazel
+  clients as an explicit, pinned dependency.
 - `nix/clients/<client>/` preserves each client's current Nix layer and lock
   data. These profiles intentionally remain divergent during this extraction.
 - `bazel/ixyk/` preserves IXYK's local and clustered NativeLink REAPI worker
   setup.
 - `bazel/wruh/` preserves Wruh's Bazel wrapper, dependency extensions, and
   remote artifact action support.
+- IXYK and Wruh load their shared Python/native dependency extensions and
+  Wruh's artifact action rule from this Bazel module; client module graphs and
+  target graphs remain local.
 - Client `MODULE.bazel`, lockfiles, BUILD files, and target graphs remain in
   their client repositories. Client Nix closures are inputs to the IFRL worker
   interface; the extraction does not assume a single Bazel configuration.

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Sophie Smithburg
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-{ nixpkgs, angr-nix, system }:
+{ nixpkgs, angr-nix, ifrl, system }:
 let
   pkgs = import nixpkgs {
     inherit system;
@@ -39,9 +39,9 @@ let
     ps.unicorn
     ps.z3-solver
   ]);
-  bazelVersion = nixpkgs.lib.removeSuffix "\n" (builtins.readFile ../.bazelversion);
+  bazelVersion = nixpkgs.lib.removeSuffix "\n" (builtins.readFile ../../../../.bazelversion);
   leanVersion = nixpkgs.lib.removePrefix "leanprover/lean4:v"
-    (nixpkgs.lib.removeSuffix "\n" (builtins.readFile ../lean-toolchain));
+    (nixpkgs.lib.removeSuffix "\n" (builtins.readFile ../../../../lean-toolchain));
   # The pinned nixpkgs Bazel bootstrap fails in the Darwin linker. Materialize
   # the official release that Bazelisk previously fetched at command runtime.
   bazel = if pkgs.stdenv.isDarwin then pkgs.stdenvNoCC.mkDerivation {
@@ -106,7 +106,10 @@ in
 assert pkgs.bazel_9.version == bazelVersion;
 assert pkgs.lean4.version == leanVersion;
 {
-  shell = pkgs.mkShell (environment // { inherit packages; });
+  shell = pkgs.mkShell (environment // {
+    inputsFrom = [ ifrl.devShells.${system}.default ];
+    inherit packages;
+  });
   package = pkgs.buildEnv {
     name = "ixyk-dev-environment";
     meta.mainProgram = "ixyk-dev";

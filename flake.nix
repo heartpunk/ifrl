@@ -47,7 +47,6 @@
               pkgs.jujutsu
               pkgs.python312
               pkgs.lean
-              pkgs.python312
               pkgs.rust-bin.stable."1.95.0".default
               pkgs.z3
               angr-nix.packages.${system}.default
