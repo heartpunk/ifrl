@@ -33,3 +33,6 @@ jobs:
         run: nix flake check --no-build --no-write-lock-file
       - name: Check Python source syntax
         run: python3 -m compileall -q python
+
+      - name: Run REAPI launcher unit tests
+        run: python3 bazel/ixyk/tools/reapi_test.py
