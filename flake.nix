@@ -8,7 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
-      url = "github:lenianiva/lean4-nix";
+      url = "github:heartpunk/lean4-nix/016ac348e901dc8d924c0d768a5ca9aee86e1763";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rust-overlay = {
