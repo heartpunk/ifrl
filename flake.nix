@@ -8,7 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
-      url = "github:heartpunk/lean4-nix/c118a8ef6162f286bdaecfeba73f7f42d26e0103";
+      url = "github:lenianiva/lean4-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rust-overlay = {
@@ -24,7 +24,10 @@
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
-          (lean4-nix.readToolchainFile ./lean-toolchain)
+          (lean4-nix.readToolchainFile {
+            toolchain = ./lean-toolchain;
+            binary = true;
+          })
           rust-overlay.overlays.default
         ];
       };
