@@ -1,0 +1,5 @@
+{
+  "sources": ["python/ifrl", "bazel/ixyk/tools", "nix/clients/ixyk/tools", "ci"],
+  "pythonpath": [".", "bazel/ixyk/tools"],
+  "tests": [["-m", "pytest", "-q", "bazel/ixyk/tools/reapi_test.py"]]
+}
