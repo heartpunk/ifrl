@@ -49,6 +49,31 @@ def files_for(paths):
     )
 
 
+def configure_mutation_engine():
+    """Work around Cosmic Ray 8.7's qualified exception tuple mutation bug."""
+    from cosmic_ray.exceptions import CosmicRayTestingException
+    from cosmic_ray.operators.exception_replacer import ExceptionReplacer
+    from parso.python.tree import Name
+
+    original = ExceptionReplacer.mutate
+
+    def replace_exception(self, node, index):
+        target = self._name_nodes(node)[index]
+        if isinstance(target, Name):
+            return original(self, node, index)
+        # Qualified exceptions are syntax subtrees, without a writable value.
+        replacement = Name(
+            CosmicRayTestingException.__name__, target.start_pos,
+            prefix=target.get_first_leaf().prefix,
+        )
+        parent = target.parent
+        parent.children[parent.children.index(target)] = replacement
+        replacement.parent = parent
+        return node
+
+    ExceptionReplacer.mutate = replace_exception
+
+
 def coverage(config, report):
     from coverage import Coverage
 
@@ -92,6 +117,7 @@ def mutation(config, report):
     from cosmic_ray.work_db import WorkDB, use_db
     from cosmic_ray.work_item import TestOutcome
 
+    configure_mutation_engine()
     sources = files_for(config.get("mutation_sources", config["sources"]))
     if not sources:
         write_json(report / "status.json", {
@@ -138,7 +164,7 @@ def mutation(config, report):
         os.environ["IFRL_MUTATION_PHASE"] = "mutation"
         status["baseline_exit_code"] = baseline
         if baseline:
-            status["status"] = "baseline-failed" if baseline != 124 else "incomplete"
+            status["status"] = "incomplete" if baseline in (124, 125) else "baseline-failed"
             write_json(report / "status.json", status)
             return 1
         sample_db = cache / "session.sqlite"
@@ -202,12 +228,20 @@ def mutation(config, report):
         for command, filename in (
             (["cosmic-ray", "dump", str(sample_db)], "mutations.jsonl"),
             (["cr-report", str(sample_db), "--show-output", "--show-diff",
-              "--show-pending"], "mutations.txt"),
-            (["cr-html", str(sample_db)], "mutations.html"),
+              "--show-pending"], "cosmic-ray-raw.txt"),
+            (["cr-html", str(sample_db)], "cosmic-ray-raw.html"),
         ):
             if run(command, report / filename, 60, work):
                 status["status"] = "report-failed"
         write_json(report / "status.json", status)
+        (report / "summary.txt").write_text(
+            f"Campaign: {status['status']}\n"
+            f"Completed: {status['completed_mutants']} / {status['available_mutants']}\n"
+            + "\n".join(f"{name}: {count}" for name, count in status["outcomes"].items())
+            + "\n\nTimeouts and engine errors are separate from confirmed kills.\n"
+            "Cosmic Ray's raw text/HTML summaries count all non-survivors as killed;\n"
+            "use the corrected counts above and status.json to assess this campaign.\n"
+        )
     print(json.dumps(status, indent=2))
     # Surviving mutants and individual mutation timeouts are reported as gaps.
     # Budget exhaustion is an explicit partial result, not a completed campaign.
