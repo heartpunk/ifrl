@@ -44,7 +44,7 @@
         let pkgs = pkgsFor system;
         in {
           default = pkgs.mkShell {
-            IFRL_ANGR_ROOT = "${angr-nix.packages.${system}.angr}";
+            IFRL_ANGR_ENVIRONMENT = "${angr-nix.packages.${system}.default}";
             packages = [
               pkgs.bashInteractive
               pkgs.git
