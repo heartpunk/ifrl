@@ -40,3 +40,9 @@ jobs:
 
       - name: Run REAPI launcher unit tests
         run: python3 bazel/ixyk/tools/reapi_test.py
+
+      - name: Check the shared Angr runtime and FP exporter
+        run: |
+          nix build .#lib.angr-nix.packages.x86_64-linux.default \
+            --no-write-lock-file --max-jobs 1 --cores 2 --out-link result-angr
+          result-angr/bin/python tests/angr_runtime.py

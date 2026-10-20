@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
     angr-nix = {
-      url = "github:heartpunk/angr-nix/experiment/ixyk-angr-10";
+      url = "github:heartpunk/angr-nix/52f1b96515da7fbe5059e3251fd603acf56deb2b";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
@@ -44,6 +44,7 @@
         let pkgs = pkgsFor system;
         in {
           default = pkgs.mkShell {
+            IFRL_ANGR_ROOT = "${angr-nix.packages.${system}.angr}";
             packages = [
               pkgs.bashInteractive
               pkgs.git
