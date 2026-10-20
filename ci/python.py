@@ -87,8 +87,10 @@ def coverage(config, report):
 def mutation(config, report):
     from contextlib import chdir
 
+    from attrs import evolve
     from cosmic_ray.mutating import mutate_and_test
     from cosmic_ray.work_db import WorkDB, use_db
+    from cosmic_ray.work_item import TestOutcome
 
     sources = files_for(config.get("mutation_sources", config["sources"]))
     if not sources:
@@ -131,7 +133,9 @@ def mutation(config, report):
             f"test-command = {json.dumps(test_command)}\n"
             '[cosmic-ray.distributor]\nname = "local"\n'
         )
+        os.environ["IFRL_MUTATION_PHASE"] = "baseline"
         baseline = run(["bash", "-c", commands], report / "baseline.log", baseline_timeout, work)
+        os.environ["IFRL_MUTATION_PHASE"] = "mutation"
         status["baseline_exit_code"] = baseline
         if baseline:
             status["status"] = "baseline-failed" if baseline != 124 else "incomplete"
@@ -160,6 +164,8 @@ def mutation(config, report):
                     code = 124
                     break
                 result = mutate_and_test(item.mutations, test_command, mutant_timeout)
+                if "IFRL_MUTATION_INFRASTRUCTURE" in (result.output or ""):
+                    result = evolve(result, test_outcome=TestOutcome.INCOMPETENT)
                 database.set_result(item.job_id, result)
                 print(item.job_id, result.worker_outcome, result.test_outcome,
                       file=log, flush=True)
@@ -169,7 +175,8 @@ def mutation(config, report):
             status["available_mutants"] = sample.num_work_items
             status["completed_mutants"] = len(results)
             status["outcomes"] = dict(Counter(
-                "timeout" if result.output == "timeout" else
+                "timeout" if result.output == "timeout"
+                or "IFRL_MUTATION_TIMEOUT" in (result.output or "") else
                 (result.test_outcome.value if result.test_outcome else result.worker_outcome.value)
                 for _, result in results
             ))
