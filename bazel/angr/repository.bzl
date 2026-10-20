@@ -14,6 +14,7 @@ def _impl(ctx):
 load("@rules_python//python:defs.bzl", "py_library")
 py_library(
     name = "pkg",
+    precompile = "disabled",
     srcs = glob(["site-packages/angr/**/*.py"]),
     data = glob(
         ["site-packages/angr/**/*", "site-packages/angr-*.dist-info/**/*"],
