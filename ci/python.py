@@ -100,9 +100,13 @@ def mutation(config, report):
     day = datetime.now(UTC).date()
     cache = Path("ci-mutation-cache").resolve()
     cache.mkdir(exist_ok=True)
+    mutant_timeout = config.get("mutation_timeout", 60)
+    baseline_timeout = config.get("mutation_baseline_timeout", 60)
+    budget = 900
     status = {
         "status": "incomplete", "date": str(day), "sources": sources,
-        "budget_seconds": 900, "per_mutant_seconds": 60,
+        "execution_budget_seconds": budget, "per_mutant_seconds": mutant_timeout,
+        "baseline_budget_seconds": baseline_timeout, "initialization_budget_seconds": 300,
     }
     write_json(report / "status.json", status)
     with tempfile.TemporaryDirectory(prefix="ifrl-mutation-") as temporary:
@@ -123,12 +127,11 @@ def mutation(config, report):
         cfg = report / "cosmic-ray.toml"
         cfg.write_text(
             f"[cosmic-ray]\nmodule-path = {json.dumps(sources)}\n"
-            f"timeout = 60.0\nexcluded-modules = []\n"
+            f"timeout = {float(mutant_timeout)}\nexcluded-modules = []\n"
             f"test-command = {json.dumps(test_command)}\n"
             '[cosmic-ray.distributor]\nname = "local"\n'
         )
-        started = time.monotonic()
-        baseline = run(["bash", "-c", commands], report / "baseline.log", 60, work)
+        baseline = run(["bash", "-c", commands], report / "baseline.log", baseline_timeout, work)
         status["baseline_exit_code"] = baseline
         if baseline:
             status["status"] = "baseline-failed" if baseline != 124 else "incomplete"
@@ -146,16 +149,17 @@ def mutation(config, report):
                 write_json(report / "status.json", status)
                 return 1
         code = 0
+        started = time.monotonic()
         with (
             use_db(sample_db, WorkDB.Mode.open) as database,
             chdir(work),
             (report / "execution.log").open("w") as log,
         ):
             for item in database.pending_work_items:
-                if time.monotonic() - started > 840:
+                if time.monotonic() - started > budget - mutant_timeout:
                     code = 124
                     break
-                result = mutate_and_test(item.mutations, test_command, 60)
+                result = mutate_and_test(item.mutations, test_command, mutant_timeout)
                 database.set_result(item.job_id, result)
                 print(item.job_id, result.worker_outcome, result.test_outcome,
                       file=log, flush=True)
