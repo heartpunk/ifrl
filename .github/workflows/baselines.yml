@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/
     with:
       baseline-ref: ${{ github.sha }}
+      lint-base-sha: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
   mutation:
     if: github.event_name == 'schedule' || inputs.mutation == true || (github.event_name == 'pull_request' && github.head_ref == 'ci-baselines')
     uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/

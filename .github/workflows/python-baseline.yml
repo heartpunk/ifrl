@@ -11,6 +11,9 @@ on:
       mutation:
         default: false
         type: boolean
+      lint-base-sha:
+        default: ''
+        type: string
 permissions:
   contents: read
 defaults:
@@ -22,6 +25,7 @@ jobs:
     timeout-minutes: 90
     env:
       IFRL_NIX_SHELL: ${{ inputs.nix-shell }}
+      IFRL_LINT_BASE_SHA: ${{ inputs.lint-base-sha }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
