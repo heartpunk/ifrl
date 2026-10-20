@@ -7,17 +7,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1792487713,
-        "narHash": "sha256-l+WHomDqeOcEwE5jIqafFOScG/qxuPjxhDdkUXMvysA=",
+        "lastModified": 1792520586,
+        "narHash": "sha256-M43QqWw9m0rgeFN5bceTw428RdcsTLu7Ggi59at93uk=",
         "owner": "heartpunk",
         "repo": "angr-nix",
-        "rev": "fa115bd49a8866746e973f6f3a780180ad5d68fb",
+        "rev": "0e43b3a7ca6700631d68a5cc169938d6a9229a83",
         "type": "github"
       },
       "original": {
         "owner": "heartpunk",
         "repo": "angr-nix",
-        "rev": "fa115bd49a8866746e973f6f3a780180ad5d68fb",
+        "rev": "0e43b3a7ca6700631d68a5cc169938d6a9229a83",
         "type": "github"
       }
     },

@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
     angr-nix = {
-      url = "github:heartpunk/angr-nix/fa115bd49a8866746e973f6f3a780180ad5d68fb";
+      url = "github:heartpunk/angr-nix/0e43b3a7ca6700631d68a5cc169938d6a9229a83";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
