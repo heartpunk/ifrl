@@ -142,6 +142,14 @@ def mutation(config, report):
             write_json(report / "status.json", status)
             return 1
         sample_db = cache / "session.sqlite"
+        if sample_db.exists():
+            with use_db(sample_db, WorkDB.Mode.open) as previous:
+                finished = next(iter(previous.pending_work_items), None) is None
+            if finished:
+                # A completed campaign is rerun on the next daily invocation.
+                # Only unfinished campaigns resume their saved pending work.
+                shutil.copy2(sample_db, report / "previous-campaign.sqlite")
+                sample_db.unlink()
         if not sample_db.exists():
             init = run(["cosmic-ray", "init", str(cfg), str(sample_db)],
                        report / "init.log", 300, work)
