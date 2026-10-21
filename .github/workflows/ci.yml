@@ -63,10 +63,4 @@ jobs:
           nix build .#cosmic-ray --no-write-lock-file --max-jobs 1 --cores 2 \
             --out-link "$RUNNER_TEMP/result-cosmic-ray"
       - name: Check the mutation Python environment
-        run: |
-          nix develop .#mutation --no-write-lock-file --command bash -euc '
-            env_dir="$(mktemp -d)"
-            trap "rm -rf \"$env_dir\"" EXIT
-            python3 -m venv --system-site-packages "$env_dir"
-            "$env_dir/bin/python" -c "from cosmic_ray.mutating import mutate_and_test"
-          '
+        run: nix develop .#mutation --no-write-lock-file --command bash ci/mutation-python-smoke.sh
