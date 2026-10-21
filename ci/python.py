@@ -278,32 +278,34 @@ def main():
         return 0
     if args.mode == "lint":
         base_sha = os.getenv("IFRL_LINT_BASE_SHA", "").strip()
-        changed = None
-        command = ["ruff", "check", "--isolated", *config["sources"]]
-        if base_sha:
-            subprocess.run(
-                ["git", "fetch", "--no-tags", "--depth=1", "origin", base_sha],
-                check=True,
-            )
-            changed = subprocess.check_output(
-                [
-                    "git", "diff", "--name-only", "--diff-filter=ACMR",
-                    base_sha, "HEAD", "--", *config["sources"],
-                ],
-                text=True,
-            ).splitlines()
-            changed = sorted(path for path in changed if path.endswith(".py"))
-            if not changed:
-                (report / "ruff.txt").write_text("No changed Python source files.\n")
-                write_json(report / "status.json", {
-                    "base_sha": base_sha, "changed_python_files": [],
-                })
-                print("No changed Python source files.")
-                return 0
-            command = ["ruff", "check", "--isolated", *changed]
+        if not base_sha:
+            raise ValueError("IFRL_LINT_BASE_SHA is required for lint mode")
+        head_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        if base_sha == head_sha:
+            raise ValueError("IFRL_LINT_BASE_SHA must differ from HEAD")
+        subprocess.run(
+            ["git", "fetch", "--no-tags", "--depth=1", "origin", base_sha],
+            check=True,
+        )
+        changed = subprocess.check_output(
+            [
+                "git", "diff", "--name-only", "--diff-filter=ACMR",
+                base_sha, "HEAD", "--", *config["sources"],
+            ],
+            text=True,
+        ).splitlines()
+        changed = sorted(path for path in changed if path.endswith(".py"))
+        if not changed:
+            (report / "ruff.txt").write_text("No changed Python source files.\n")
+            write_json(report / "status.json", {
+                "base_sha": base_sha, "changed_python_files": [],
+            })
+            print("No changed Python source files.")
+            return 0
+        command = ["ruff", "check", "--isolated", *changed]
         code = run(command, report / "ruff.txt")
         write_json(report / "status.json", {
-            "base_sha": base_sha or None, "changed_python_files": changed,
+            "base_sha": base_sha, "changed_python_files": changed,
             "exit_code": code,
         })
         print((report / "ruff.txt").read_text())
