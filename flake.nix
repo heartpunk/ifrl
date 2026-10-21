@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
     angr-nix = {
-      url = "github:heartpunk/angr-nix/experiment/ixyk-angr-10";
+      url = "github:heartpunk/angr-nix/14ae4f79e7e694bdd2c25624c119897480ce1348";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
@@ -44,11 +44,11 @@
         let pkgs = pkgsFor system;
         in {
           default = pkgs.mkShell {
+            IFRL_ANGR_ENVIRONMENT = "${angr-nix.packages.${system}.default}";
             packages = [
               pkgs.bashInteractive
               pkgs.git
               pkgs.jujutsu
-              pkgs.python312
               pkgs.lean
               pkgs.rust-bin.stable."1.95.0".default
               pkgs.z3

@@ -3,15 +3,16 @@
 _RUNTIME_ENV = "GHOT_REAPI_WORKER_RUNTIME_ROOT"
 _LIBSTDCXX_ENV = "GHOT_NIX_LIBSTDCXX_ROOT"
 
-
 def _repository_impl(ctx):
     runtime = ctx.os.environ.get(_RUNTIME_ENV)
     library_root = ctx.os.environ.get(_LIBSTDCXX_ENV)
     for name, path in [(_RUNTIME_ENV, runtime), (_LIBSTDCXX_ENV, library_root)]:
         if not path or not path.startswith("/nix/store/"):
             fail("{} must name an immutable Nix store output".format(name))
-    if not ctx.path(runtime + "/bin/python3").exists:
-        fail("{} lacks bin/python3".format(_RUNTIME_ENV))
+
+    # The runtime is installed on the qualified execution workers; an analysis
+    # host requesting only libstdcxx need not have that remote closure locally.
+    # Keep its immutable path for actions that use the worker runtime.
     library = ctx.path(library_root + "/lib/libstdc++.so.6")
     if not library.exists:
         fail("{} lacks lib/libstdc++.so.6".format(_LIBSTDCXX_ENV))
@@ -24,7 +25,6 @@ exports_files(["runtime.bzl"])
 filegroup(name = "libstdcxx", srcs = ["lib/libstdc++.so.6"])
 """)
 
-
 _repository = repository_rule(
     implementation = _repository_impl,
     configure = True,
@@ -32,9 +32,7 @@ _repository = repository_rule(
     local = True,
 )
 
-
 def _extension_impl(_module_ctx):
     _repository(name = "nix_native_deps")
-
 
 nix_native_deps = module_extension(implementation = _extension_impl)
