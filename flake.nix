@@ -33,6 +33,8 @@
         ];
       };
     in {
+      overlays.cosmic-ray = import ./nix/cosmic-ray;
+
       lib = {
         inherit angr-nix lean4-nix rust-overlay;
         nixpkgsRevision = "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
