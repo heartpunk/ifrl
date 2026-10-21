@@ -7,7 +7,8 @@ on:
         default: ci-baselines
         type: string
       python-nix-shell:
-        default: ''
+        description: Caller flake shell with test and mutation dependencies in one Python environment
+        required: true
         type: string
       lean-nix-shell:
         default: ''
