@@ -6,6 +6,10 @@ let
   pkgs = import nixpkgs {
     inherit system;
     overlays = [
+      (ifrl.lib.lean4-nix.readToolchainFile {
+        toolchain = ../../../../lean-toolchain;
+        binary = true;
+      })
       angr-nix.overlays.default
       (final: prev: {
         python312 = prev.python312.override (old: {
@@ -84,7 +88,7 @@ let
     pkgs.gnugrep
     pkgs.git
     pkgs.jujutsu
-    pkgs.lean4
+    pkgs.lean
     pkgs.ruff
     pkgs.stdenv.cc
     pkgs.zstd
@@ -104,7 +108,7 @@ let
   '';
 in
 assert pkgs.bazel_9.version == bazelVersion;
-assert pkgs.lean4.version == leanVersion;
+assert pkgs.lean.version == leanVersion;
 {
   shell = pkgs.mkShell (environment // {
     inputsFrom = [ ifrl.devShells.${system}.default ];
