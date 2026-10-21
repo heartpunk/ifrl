@@ -29,6 +29,7 @@
             binary = true;
           })
           rust-overlay.overlays.default
+          (import ./nix/cosmic-ray)
         ];
       };
     in {
@@ -39,6 +40,13 @@
         # alongside the shared base when the client's profile is selected.
         worker = import ./nix/reapi.nix;
       };
+
+      packages = forAllSystems (system:
+        let pkgs = pkgsFor system;
+        in {
+          cosmic-ray = pkgs.python312Packages.cosmic-ray;
+          exit-codes = pkgs.python312Packages.exit-codes;
+        });
 
       devShells = forAllSystems (system:
         let pkgs = pkgsFor system;
