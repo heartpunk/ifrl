@@ -49,7 +49,6 @@
               pkgs.bashInteractive
               pkgs.git
               pkgs.jujutsu
-              pkgs.python312
               pkgs.lean
               pkgs.rust-bin.stable."1.95.0".default
               pkgs.z3
