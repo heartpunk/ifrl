@@ -57,3 +57,8 @@ jobs:
           nix build .#lib.angr-nix.packages.x86_64-linux.default \
             --no-write-lock-file --max-jobs 1 --cores 2 --out-link result-angr
           result-angr/bin/python tests/angr_runtime.py
+
+      - name: Build Cosmic Ray for verification and Cachix
+        run: |
+          nix build .#cosmic-ray --no-write-lock-file --max-jobs 1 --cores 2 \
+            --out-link "$RUNNER_TEMP/result-cosmic-ray"

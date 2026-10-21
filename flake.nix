@@ -29,9 +29,12 @@
             binary = true;
           })
           rust-overlay.overlays.default
+          (import ./nix/cosmic-ray)
         ];
       };
     in {
+      overlays.cosmic-ray = import ./nix/cosmic-ray;
+
       lib = {
         inherit angr-nix lean4-nix rust-overlay;
         nixpkgsRevision = "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
@@ -39,6 +42,13 @@
         # alongside the shared base when the client's profile is selected.
         worker = import ./nix/reapi.nix;
       };
+
+      packages = forAllSystems (system:
+        let pkgs = pkgsFor system;
+        in {
+          cosmic-ray = pkgs.python312Packages.cosmic-ray;
+          exit-codes = pkgs.python312Packages.exit-codes;
+        });
 
       devShells = forAllSystems (system:
         let pkgs = pkgsFor system;
