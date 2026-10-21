@@ -4,28 +4,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      mutation:
-        description: Run the bounded daily mutation campaign
-        type: boolean
-        default: false
   schedule:
     - cron: '23 4 * * *'
 permissions:
   contents: read
 jobs:
-  python:
-    if: github.event_name != 'schedule'
-    uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/
+  baselines:
+    uses: ./.github/workflows/suite-baselines.yml
     with:
       baseline-ref: ${{ github.sha }}
-      lint-base-sha: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-  mutation:
-    if: github.event_name == 'schedule' || inputs.mutation == true || (github.event_name == 'pull_request' && github.head_ref == 'ci-baselines')
-    uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/
-    with:
-      baseline-ref: ${{ github.sha }}
-      mutation: true
-  actions:
-    if: github.event_name != 'schedule'
-    uses: ./.github/workflows/actions-audit.yml # zizmor: ignore[self-repository] -- same-commit reusable workflow
+      python-nix-shell: ''
+      lean-nix-shell: ''

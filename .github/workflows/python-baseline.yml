@@ -22,7 +22,7 @@ defaults:
 jobs:
   python:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: ${{ inputs.mutation && 360 || 90 }}
     env:
       IFRL_NIX_SHELL: ${{ inputs.nix-shell }}
       IFRL_LINT_BASE_SHA: ${{ inputs.lint-base-sha }}

@@ -130,7 +130,9 @@ def mutation(config, report):
     cache.mkdir(exist_ok=True)
     mutant_timeout = config.get("mutation_timeout", 60)
     baseline_timeout = config.get("mutation_baseline_timeout", 60)
-    budget = 900
+    # Reserve 45 minutes inside GitHub's six-hour job ceiling for setup,
+    # the cold baseline, and report/cache upload.
+    budget = 18_900
     status = {
         "status": "incomplete", "date": str(day), "sources": sources,
         "execution_budget_seconds": budget, "per_mutant_seconds": mutant_timeout,

@@ -1,0 +1,40 @@
+name: Suite CI baselines
+on:
+  workflow_call:
+    inputs:
+      baseline-ref:
+        description: Ref in heartpunk/ifrl containing the shared CI implementation
+        default: ci-baselines
+        type: string
+      python-nix-shell:
+        default: ''
+        type: string
+      lean-nix-shell:
+        default: ''
+        type: string
+permissions:
+  contents: read
+jobs:
+  python:
+    if: github.event_name != 'schedule'
+    uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/
+    with:
+      baseline-ref: ${{ inputs.baseline-ref }}
+      lint-base-sha: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+      nix-shell: ${{ inputs.python-nix-shell }}
+  mutation:
+    if: github.event_name == 'schedule'
+    uses: ./.github/workflows/python-baseline.yml # zizmor: ignore[self-repository] -- pinned actionlint does not yet support $/
+    with:
+      baseline-ref: ${{ inputs.baseline-ref }}
+      nix-shell: ${{ inputs.python-nix-shell }}
+      mutation: true
+  actions:
+    if: github.event_name != 'schedule'
+    uses: ./.github/workflows/actions-audit.yml # zizmor: ignore[self-repository] -- same-commit reusable workflow
+  lean:
+    if: ${{ github.event_name != 'schedule' && inputs.lean-nix-shell != '' }}
+    uses: ./.github/workflows/lean-baseline.yml # zizmor: ignore[self-repository] -- same-commit reusable workflow
+    with:
+      baseline-ref: ${{ inputs.baseline-ref }}
+      nix-shell: ${{ inputs.lean-nix-shell }}
