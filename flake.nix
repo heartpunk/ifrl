@@ -66,6 +66,11 @@
               (import ./nix/bazel.nix { inherit pkgs; })
             ];
           };
+          mutation = pkgs.mkShell {
+            packages = [
+              (pkgs.python312.withPackages (ps: [ ps.cosmic-ray ]))
+            ];
+          };
         });
     };
 }

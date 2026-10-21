@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ci_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+ci_flake_root=$(cd "$ci_root/.." && pwd)
+if [[ "${1:-}" == mutation && "${IFRL_IN_SHELL:-}" != 1 ]]; then
+  export IFRL_IN_SHELL=1
+  exec nix develop "$ci_flake_root#mutation" --no-write-lock-file --command bash "$0" "$@"
+fi
 if [[ -n "${IFRL_NIX_SHELL:-}" && "${IFRL_IN_SHELL:-}" != 1 ]]; then
   export IFRL_IN_SHELL=1
   exec nix develop "$IFRL_NIX_SHELL" --no-write-lock-file --command bash "$0" "$@"
