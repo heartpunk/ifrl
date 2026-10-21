@@ -24,6 +24,7 @@
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
+          angr-nix.overlays.default
           (lean4-nix.readToolchainFile {
             toolchain = ./lean-toolchain;
             binary = true;
@@ -51,24 +52,28 @@
         });
 
       devShells = forAllSystems (system:
-        let pkgs = pkgsFor system;
+        let
+          pkgs = pkgsFor system;
+          python = pkgs.python312.withPackages (ps: [
+            ps.angr
+            ps.cosmic-ray
+            ps.coverage
+            ps.ipython
+            ps.pytest
+          ]);
         in {
           default = pkgs.mkShell {
-            IFRL_ANGR_ENVIRONMENT = "${angr-nix.packages.${system}.default}";
+            IFRL_ANGR_ENVIRONMENT = "${python}";
             packages = [
               pkgs.bashInteractive
               pkgs.git
               pkgs.jujutsu
               pkgs.lean
+              pkgs.ruff
               pkgs.rust-bin.stable."1.95.0".default
               pkgs.z3
-              angr-nix.packages.${system}.default
+              python
               (import ./nix/bazel.nix { inherit pkgs; })
-            ];
-          };
-          mutation = pkgs.mkShell {
-            packages = [
-              (pkgs.python312.withPackages (ps: [ ps.cosmic-ray ]))
             ];
           };
         });

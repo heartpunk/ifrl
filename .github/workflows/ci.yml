@@ -45,22 +45,14 @@ jobs:
           git config --global --add url.https://github.com/.insteadOf ssh://git@github.com/
           git config --global --add url.https://github.com/.insteadOf git@github.com:
       - name: Build the pinned development shell
-        run: nix develop --no-write-lock-file --command true
+        run: nix develop .#default --no-write-lock-file --command true
       - name: Check Python source syntax
-        run: python3 -m compileall -q python
+        run: nix develop .#default --no-write-lock-file --command python3 -m compileall -q python
 
       - name: Run REAPI launcher unit tests
-        run: python3 bazel/ixyk/tools/reapi_test.py
+        run: nix develop .#default --no-write-lock-file --command python3 bazel/ixyk/tools/reapi_test.py
 
       - name: Check the shared Angr runtime and FP exporter
-        run: |
-          nix build .#lib.angr-nix.packages.x86_64-linux.default \
-            --no-write-lock-file --max-jobs 1 --cores 2 --out-link result-angr
-          result-angr/bin/python tests/angr_runtime.py
-
-      - name: Build Cosmic Ray for verification and Cachix
-        run: |
-          nix build .#cosmic-ray --no-write-lock-file --max-jobs 1 --cores 2 \
-            --out-link "$RUNNER_TEMP/result-cosmic-ray"
+        run: nix develop .#default --no-write-lock-file --command python3 tests/angr_runtime.py
       - name: Check the mutation Python environment
-        run: nix develop .#mutation --no-write-lock-file --command bash ci/mutation-python-smoke.sh
+        run: nix develop .#default --no-write-lock-file --command bash ci/mutation-python-smoke.sh

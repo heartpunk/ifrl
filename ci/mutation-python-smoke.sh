@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-env_dir=$(mktemp -d)
-trap 'rm -rf "$env_dir"' EXIT
-python3 -m venv --system-site-packages "$env_dir"
-"$env_dir/bin/python" -c 'from cosmic_ray.mutating import mutate_and_test'
+python3 - <<'PY'
+import sys
+
+from angr import claripy
+from cosmic_ray.mutating import mutate_and_test
+from coverage import Coverage
+import pytest
+
+print(f"Unified Python: {sys.executable}")
+PY
+cosmic-ray --version
+ruff --version

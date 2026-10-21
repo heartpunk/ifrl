@@ -12,5 +12,5 @@ jobs:
     uses: ./.github/workflows/suite-baselines.yml
     with:
       baseline-ref: ${{ github.sha }}
-      python-nix-shell: ''
+      python-nix-shell: '.#devShells.x86_64-linux.default'
       lean-nix-shell: ''
