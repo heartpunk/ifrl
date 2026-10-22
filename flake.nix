@@ -20,6 +20,7 @@
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
+          (import ./nix/angr)
           (lean4-nix.readToolchainFile {
             toolchain = ./lean-toolchain;
             binary = true;
