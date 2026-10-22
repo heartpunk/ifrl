@@ -25,6 +25,31 @@ worker/REAPI execution machinery.
 The profile copies are an extraction draft. They preserve current differences
 so the suite can perform a later, focused unification and validation pass.
 
+## Suite source-reference audit
+
+`ci/suite_refs.py` accepts explicit checkout roots, finds Nix, Bazel, Lake,
+Lean toolchain, and workflow files below them, extracts source references, and
+compares the resolved revisions and declared selectors. Run it in the IFRL
+development shell so Nix, Bazel, and Lean syntax use the flake-provided
+ast-grep and experimental Lean grammar:
+
+```sh
+nix develop --command python3 ci/suite_refs.py \
+  --repo ifrl=/path/to/ifrl \
+  --repo ayxg=/path/to/ayxg \
+  --repo ixyk=/path/to/ixyk \
+  --repo wruh=/path/to/wruh \
+  --repo utem=/path/to/utem \
+  --repo ufda=/path/to/ufda
+```
+
+The roots are explicit; the audit discovers build files within each selected
+checkout and does not search the machine for repositories. Its discovery,
+extraction, and comparison phases are separate. The in-memory records use
+Dublin Core terms for document metadata and PROV-O terms for entity derivation
+and activity inputs/outputs. Findings distinguish mismatches from sources that
+the current static extraction cannot resolve.
+
 ## Source snapshots
 
 The profile files were copied from these source revisions (client-specific

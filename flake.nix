@@ -77,13 +77,17 @@
         in {
           default = pkgs.mkShell {
             IFRL_ANGR_ENVIRONMENT = "${python}";
+            IFRL_AST_GREP = "${pkgs.ast-grep}/bin/ast-grep";
+            IFRL_TREE_SITTER_LEAN_PARSER = "${pkgs.tree-sitter-grammars.tree-sitter-lean}/parser";
             packages = [
+              pkgs.ast-grep
               pkgs.bashInteractive
               pkgs.git
               pkgs.jujutsu
               pkgs.lean
               pkgs.ruff
               pkgs.rust-bin.stable."1.95.0".default
+              pkgs.tree-sitter-grammars.tree-sitter-lean
               pkgs.z3
               python
               (import ./nix/bazel.nix { inherit pkgs; })
