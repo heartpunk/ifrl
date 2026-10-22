@@ -640,15 +640,16 @@ def extract_references(
     result: list[SourceReference] = []
     for document in documents:
         root = roots[document.repository]
-        if document.path == "flake.nix":
+        filename = Path(document.path).name
+        if filename == "flake.nix":
             result.extend(extract_flake_declarations(document, root, ast_grep))
-        elif document.path.endswith(("flake.lock", "lake-manifest.json", "MODULE.bazel.lock")):
+        elif filename in {"flake.lock", "lake-manifest.json", "MODULE.bazel.lock"}:
             result.extend(extract_lockfile(document, root))
-        elif document.path in {"MODULE.bazel", "WORKSPACE", "WORKSPACE.bazel"}:
+        elif filename in {"MODULE.bazel", "WORKSPACE", "WORKSPACE.bazel"}:
             result.extend(extract_bazel_overrides(document, root, ast_grep))
-        elif document.path == "lean-toolchain":
+        elif filename == "lean-toolchain":
             result.extend(extract_lean_toolchain(document, root))
-        elif document.path.endswith("lakefile.lean"):
+        elif filename == "lakefile.lean":
             result.extend(extract_lake_requirements(document, root, ast_grep))
         elif document.language == "yaml":
             result.extend(extract_workflow_references(document, root, ast_grep))
@@ -711,7 +712,7 @@ def evaluate_matches(
             item.revision
             for item in items
             if item.was_derived_from.repository == "ifrl"
-            and item.was_derived_from.path == "flake.lock"
+            and Path(item.was_derived_from.path).name == "flake.lock"
             and item.input_name is not None
             and item.revision
         }
@@ -722,7 +723,7 @@ def evaluate_matches(
         lock_items = [
             item
             for item in by_component.get(component, [])
-            if item.was_derived_from.path == "flake.lock"
+            if Path(item.was_derived_from.path).name in {"flake.lock", "lake-manifest.json"}
             and item.input_name is not None
             and item.revision
         ]
@@ -816,7 +817,8 @@ def evaluate_matches(
                 and candidate.revision
             }
         if item.kind in {"flake-input-declaration", "workflow-action-or-reusable-workflow"}:
-            if item.selector and "${{" not in item.selector and item.target_repository.rsplit("/", 1)[-1] in repo_names:
+            is_suite_source = item.target_repository.rsplit("/", 1)[-1] in repo_names
+            if item.selector and "${" not in item.selector and is_suite_source:
                 status = "match" if item.selector == "main" else "mismatch"
                 findings.append(
                     Finding(
@@ -824,6 +826,16 @@ def evaluate_matches(
                         "suite-source-floats-on-main",
                         f"{item.was_derived_from.identifier}:{item.at_location.start_line} "
                         f"selects {item.target_repository} at {item.selector}",
+                        (item,),
+                    )
+                )
+            elif item.selector and "${" in item.selector and is_suite_source:
+                findings.append(
+                    Finding(
+                        "unresolved",
+                        "suite-source-selector",
+                        f"{item.was_derived_from.identifier}:{item.at_location.start_line} "
+                        f"uses an interpolated selector for {item.target_repository}: {item.selector}",
                         (item,),
                     )
                 )
@@ -838,7 +850,7 @@ def evaluate_matches(
                     )
                 )
         if item.kind == "lake-requirement" and item.target_repository.rsplit("/", 1)[-1] in repo_names:
-            if item.selector and "${{" not in item.selector:
+            if item.selector and "${" not in item.selector:
                 status = "match" if item.selector == "main" else "mismatch"
                 findings.append(
                     Finding(
