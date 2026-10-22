@@ -2,11 +2,7 @@
   description = "Shared suite Nix dependencies and Bazel worker infrastructure";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
-    angr-nix = {
-      url = "github:heartpunk/angr-nix/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/e79d204daf01f8a877f7b2ce7324874ce9c84676";
     lean4-nix = {
       url = "github:heartpunk/lean4-nix/main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,22 +13,26 @@
     };
   };
 
-  outputs = { self, nixpkgs, angr-nix, lean4-nix, rust-overlay, ... }:
+  outputs = { self, nixpkgs, lean4-nix, rust-overlay, ... }:
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      pkgsFor = system: import nixpkgs {
-        inherit system;
-        overlays = [
-          angr-nix.overlays.default
-          (lean4-nix.readToolchainFile {
-            toolchain = ./lean-toolchain;
-            binary = true;
-          })
-          rust-overlay.overlays.default
-          (import ./nix/cosmic-ray)
-        ];
-      };
+      pkgsFor = system:
+        let
+          stockPkgs = import nixpkgs { inherit system; };
+          angrPatchApplies = import ./nix/angr/check-patch.nix { pkgs = stockPkgs; };
+        in import nixpkgs {
+          inherit system;
+          overlays = [
+            (import ./nix/angr { patchApplies = angrPatchApplies; })
+            (lean4-nix.readToolchainFile {
+              toolchain = ./lean-toolchain;
+              binary = true;
+            })
+            rust-overlay.overlays.default
+            (import ./nix/cosmic-ray)
+          ];
+        };
       pythonFor = system:
         let pkgs = pkgsFor system;
         in pkgs.python312.withPackages (ps: [
@@ -48,8 +48,8 @@
       overlays.cosmic-ray = import ./nix/cosmic-ray;
 
       lib = {
-        inherit angr-nix lean4-nix rust-overlay;
-        nixpkgsRevision = "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
+        inherit lean4-nix rust-overlay;
+        nixpkgsRevision = "e79d204daf01f8a877f7b2ce7324874ce9c84676";
         # Clients keep their module graphs; this closure is added to a worker
         # alongside the shared base when the client's profile is selected.
         worker = import ./nix/reapi.nix;

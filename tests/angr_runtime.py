@@ -11,7 +11,7 @@ class SharedAngrTest(unittest.TestCase):
     def test_version(self):
         for package in ("angr", "archinfo", "cle", "pyvex"):
             with self.subTest(package=package):
-                self.assertEqual(importlib.metadata.version(package), "10.0.1")
+                self.assertEqual(importlib.metadata.version(package), "10.0.4")
 
     def test_fp_conversion_export(self):
         for width, sort in ((32, claripy.FSORT_FLOAT), (64, claripy.FSORT_DOUBLE)):
