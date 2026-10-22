@@ -62,6 +62,7 @@ let
   } else pkgs.bazel_9;
   environment = {
     ELAN = "";
+    IFRL_ANGR_ENVIRONMENT = "${ifrl.packages.${system}.angr-python}";
     IXYK_NIX_PYTHON_ROOT = "${python}";
     IXYK_NIX_PYTHON_RUNTIME = "${pkgs.python312}";
     IXYK_NIX_LIBSTDCXX_ROOT =
