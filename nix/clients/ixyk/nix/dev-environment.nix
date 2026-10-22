@@ -53,7 +53,7 @@ let
     version = bazelVersion;
     src = pkgs.fetchurl {
       url = "https://github.com/bazelbuild/bazel/releases/download/${bazelVersion}/bazel-${bazelVersion}-darwin-arm64";
-      hash = "sha256-LbiDcYRT8EN6e8tAjoidv4U5zcTWHI68OAehqI0C/wg=";
+      hash = "sha256-3UZjUqPk01gbiJh0DuH/IIhmzL4l+NNnxdy5UCGVh+Y=";
     };
     dontUnpack = true;
     dontFixup = true;
