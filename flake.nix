@@ -33,6 +33,17 @@
           (import ./nix/cosmic-ray)
         ];
       };
+      pythonFor = system:
+        let pkgs = pkgsFor system;
+        in pkgs.python312.withPackages (ps: [
+          ps.angr
+          ps.cosmic-ray
+          ps.coverage
+          ps.hypothesis
+          ps.ipython
+          ps.pytest
+          ps.z3-solver
+        ]);
     in {
       overlays.cosmic-ray = import ./nix/cosmic-ray;
 
@@ -47,6 +58,7 @@
       packages = forAllSystems (system:
         let pkgs = pkgsFor system;
         in {
+          angr-python = pythonFor system;
           cosmic-ray = pkgs.python312Packages.cosmic-ray;
           exit-codes = pkgs.python312Packages.exit-codes;
         });
@@ -54,13 +66,7 @@
       devShells = forAllSystems (system:
         let
           pkgs = pkgsFor system;
-          python = pkgs.python312.withPackages (ps: [
-            ps.angr
-            ps.cosmic-ray
-            ps.coverage
-            ps.ipython
-            ps.pytest
-          ]);
+          python = pythonFor system;
         in {
           default = pkgs.mkShell {
             IFRL_ANGR_ENVIRONMENT = "${python}";
