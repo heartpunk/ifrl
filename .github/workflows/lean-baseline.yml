@@ -47,7 +47,7 @@ jobs:
           git -C .ifrl-ci rev-parse HEAD > ci-reports/lean/baseline-revision.txt
           git config --global --add url.https://github.com/.insteadOf ssh://git@github.com/
           git config --global --add url.https://github.com/.insteadOf git@github.com:
-          nix flake check --no-build --no-write-lock-file 2>&1 | tee ci-reports/lean/flake.log
+          nix flake check --no-write-lock-file 2>&1 | tee ci-reports/lean/flake.log
           nix develop "$NIX_SHELL" --no-write-lock-file \
             --command bash -euo pipefail .ci/lean.sh 2>&1 | tee ci-reports/lean/build-and-audit.log
           if grep -w sorryAx ci-reports/lean/build-and-audit.log; then
