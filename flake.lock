@@ -16,8 +16,8 @@
       },
       "original": {
         "owner": "heartpunk",
+        "ref": "main",
         "repo": "angr-nix",
-        "rev": "14ae4f79e7e694bdd2c25624c119897480ce1348",
         "type": "github"
       }
     },
@@ -56,8 +56,8 @@
       },
       "original": {
         "owner": "heartpunk",
+        "ref": "main",
         "repo": "lean4-nix",
-        "rev": "016ac348e901dc8d924c0d768a5ca9aee86e1763",
         "type": "github"
       }
     },

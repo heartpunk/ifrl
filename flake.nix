@@ -4,11 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
     angr-nix = {
-      url = "github:heartpunk/angr-nix/14ae4f79e7e694bdd2c25624c119897480ce1348";
+      url = "github:heartpunk/angr-nix/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lean4-nix = {
-      url = "github:heartpunk/lean4-nix/016ac348e901dc8d924c0d768a5ca9aee86e1763";
+      url = "github:heartpunk/lean4-nix/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rust-overlay = {
