@@ -84,6 +84,8 @@ class SourceDocument:
 
 @dataclass(frozen=True)
 class SourceLocation:
+    """One-based line/column coordinates, or a JSON pointer for structured data."""
+
     start_line: int | None = None
     start_column: int | None = None
     end_line: int | None = None
@@ -248,10 +250,10 @@ def match_location(match: dict) -> SourceLocation:
     start = match.get("range", {}).get("start", {})
     end = match.get("range", {}).get("end", {})
     return SourceLocation(
-        start_line=start.get("line"),
-        start_column=start.get("column"),
-        end_line=end.get("line"),
-        end_column=end.get("column"),
+        start_line=start["line"] + 1 if "line" in start else None,
+        start_column=start["column"] + 1 if "column" in start else None,
+        end_line=end["line"] + 1 if "line" in end else None,
+        end_column=end["column"] + 1 if "column" in end else None,
     )
 
 
@@ -261,10 +263,10 @@ def capture_location(match: dict, name: str) -> SourceLocation:
     start = location.get("start", {})
     end = location.get("end", {})
     return SourceLocation(
-        start_line=start.get("line"),
-        start_column=start.get("column"),
-        end_line=end.get("line"),
-        end_column=end.get("column"),
+        start_line=start["line"] + 1 if "line" in start else None,
+        start_column=start["column"] + 1 if "column" in start else None,
+        end_line=end["line"] + 1 if "line" in end else None,
+        end_column=end["column"] + 1 if "column" in end else None,
     )
 
 
@@ -901,7 +903,7 @@ def evaluate_matches(
                     "mismatch",
                     "declaration-matches-lock",
                     f"{item.was_derived_from.identifier}:{item.at_location.start_line} selects "
-                    f"{item.target_repository}@{item.revision}, while its flake.lock has "
+                    f"{item.target_repository}@{item.revision}, while its {local_lock_path} has "
                     f"{', '.join(sorted(lock_revisions))}",
                     (item,),
                 )
@@ -927,7 +929,8 @@ def print_activity(
     print(f"Discovered {len(documents)} build files and {len(references)} source references.")
     for finding in findings:
         refs = ", ".join(
-            f"{item.was_derived_from.identifier}:{item.at_location.start_line or item.at_location.json_pointer}"
+            f"{item.was_derived_from.identifier}:"
+            f"{item.at_location.start_line if item.at_location.start_line is not None else item.at_location.json_pointer}"
             for item in finding.was_derived_from
         )
         print(f"{finding.status.upper():10} {finding.rule}: {finding.summary}")
