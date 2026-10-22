@@ -35,7 +35,6 @@ let
   };
   python = pkgs.python312.withPackages (ps: [
     ps.angr
-    ps.claripy
     ps.coverage
     ps.hypothesis
     ps.ipykernel
