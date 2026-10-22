@@ -17,14 +17,20 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      angrOverlayFor = system:
+        let
+          stockPkgs = import nixpkgs { inherit system; };
+          patchApplies =
+            import ./nix/angr/check-patch.nix { pkgs = stockPkgs; };
+        in
+        final: prev:
+          (import ./nix/angr { inherit patchApplies; }) final prev;
       angrOverlay = final: prev:
-        (import ./nix/angr {
-          patchApplies = import ./nix/angr/check-patch.nix { pkgs = prev; };
-        }) final prev;
+        (angrOverlayFor prev.stdenv.hostPlatform.system) final prev;
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
-          angrOverlay
+          (angrOverlayFor system)
           (lean4-nix.readToolchainFile {
             toolchain = ./lean-toolchain;
             binary = true;
