@@ -17,22 +17,22 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      pkgsFor = system:
-        let
-          stockPkgs = import nixpkgs { inherit system; };
-          angrPatchApplies = import ./nix/angr/check-patch.nix { pkgs = stockPkgs; };
-        in import nixpkgs {
-          inherit system;
-          overlays = [
-            (import ./nix/angr { patchApplies = angrPatchApplies; })
-            (lean4-nix.readToolchainFile {
-              toolchain = ./lean-toolchain;
-              binary = true;
-            })
-            rust-overlay.overlays.default
-            (import ./nix/cosmic-ray)
-          ];
-        };
+      angrOverlay = final: prev:
+        (import ./nix/angr {
+          patchApplies = import ./nix/angr/check-patch.nix { pkgs = prev; };
+        }) final prev;
+      pkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [
+          angrOverlay
+          (lean4-nix.readToolchainFile {
+            toolchain = ./lean-toolchain;
+            binary = true;
+          })
+          rust-overlay.overlays.default
+          (import ./nix/cosmic-ray)
+        ];
+      };
       pythonFor = system:
         let pkgs = pkgsFor system;
         in pkgs.python312.withPackages (ps: [
@@ -45,6 +45,7 @@
           ps.z3-solver
         ]);
     in {
+      overlays.angr = angrOverlay;
       overlays.cosmic-ray = import ./nix/cosmic-ray;
 
       lib = {

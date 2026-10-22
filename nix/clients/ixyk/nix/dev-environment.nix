@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Sophie Smithburg
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-{ nixpkgs, angr-nix, ifrl, system }:
+{ nixpkgs, ifrl, system }:
 let
   pkgs = import nixpkgs {
     inherit system;
@@ -10,7 +10,7 @@ let
         toolchain = ../../../../lean-toolchain;
         binary = true;
       })
-      angr-nix.overlays.default
+      ifrl.overlays.angr
       (final: prev: {
         python312 = prev.python312.override (old: {
           packageOverrides = nixpkgs.lib.composeExtensions
