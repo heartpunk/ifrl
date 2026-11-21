@@ -26,18 +26,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1783703453,
-        "narHash": "sha256-AasT4mgk7bSYKX5UuZ+7TdfsL+JV72/hPMNucsQwJ+M=",
+        "lastModified": 1791835095,
+        "narHash": "sha256-exAyn2EJ0jeWTElQNsMzcTYK28EjR1cZwYFkEihp/KY=",
         "owner": "heartpunk",
         "repo": "lean4-nix",
-        "rev": "118d8caf67fbe0975ea014bcd6d501951219e6d8",
+        "rev": "016ac348e901dc8d924c0d768a5ca9aee86e1763",
         "type": "github"
       },
       "original": {
         "owner": "heartpunk",
+        "ref": "main",
         "repo": "lean4-nix",
-        "type": "github",
-        "ref": "main"
+        "type": "github"
       }
     },
     "nixpkgs": {
@@ -51,9 +51,9 @@
       },
       "original": {
         "owner": "NixOS",
+        "ref": "master",
         "repo": "nixpkgs",
-        "type": "github",
-        "ref": "master"
+        "type": "github"
       }
     },
     "nixpkgs-lib": {

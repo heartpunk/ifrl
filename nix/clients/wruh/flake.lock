@@ -7,18 +7,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1787385739,
-        "narHash": "sha256-imP55uaj72wA5O3EP8M4uvgw+26rDbliQjOBwLANwDQ=",
+        "lastModified": 1792535546,
+        "narHash": "sha256-M43QqWw9m0rgeFN5bceTw428RdcsTLu7Ggi59at93uk=",
         "owner": "heartpunk",
         "repo": "angr-nix",
-        "rev": "6baaa779759d00e2b180850dcebb77ed5231dcc9",
+        "rev": "14ae4f79e7e694bdd2c25624c119897480ce1348",
         "type": "github"
       },
       "original": {
         "owner": "heartpunk",
+        "ref": "main",
         "repo": "angr-nix",
-        "type": "github",
-        "ref": "main"
+        "type": "github"
       }
     },
     "nixpkgs": {
@@ -32,9 +32,9 @@
       },
       "original": {
         "owner": "NixOS",
+        "ref": "master",
         "repo": "nixpkgs",
-        "type": "github",
-        "ref": "master"
+        "type": "github"
       }
     },
     "root": {
