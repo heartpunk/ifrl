@@ -1,6 +1,6 @@
 {
   description = "Concrete trace investigation development tools";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/master";
   inputs.rust-overlay = { url = "github:oxalica/rust-overlay"; inputs.nixpkgs.follows = "nixpkgs"; };
   outputs = { nixpkgs, rust-overlay, ... }:
     let systems = [ "x86_64-linux" "aarch64-darwin" ];
