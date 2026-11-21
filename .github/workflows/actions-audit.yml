@@ -30,9 +30,11 @@ jobs:
       - name: Audit workflow syntax and shell commands
         run: |
           mkdir -p ci-reports/actions
-          # Use actionlint from the suite's locked nixpkgs input.
+          # The locked actionlint predates GitHub's reusable-workflow identity fields.
+          # Keep checking all other expressions until the tool recognizes them.
           nix shell ./.ifrl-audit#actionlint --no-write-lock-file \
             --command actionlint -ignore 'unexpected key "queue" for "concurrency" section' \
+              -ignore 'property "workflow_(repository|sha)" is not defined' \
             .github/workflows/*.yml 2>&1 | tee ci-reports/actions/actionlint.txt
       - name: Audit workflow security
         if: ${{ !cancelled() }}
