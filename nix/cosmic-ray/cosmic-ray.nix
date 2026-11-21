@@ -1,5 +1,5 @@
 { buildPythonPackage
-, fetchurl
+, src
 , lib
 , hatchling
 , hatch-vcs
@@ -20,15 +20,13 @@
 
 let
   pname = "cosmic-ray";
-  version = "8.7.0";
+  version = "0.0.0+unstable.${src.shortRev or "dirty"}";
 in buildPythonPackage {
   inherit pname version;
   pyproject = true;
 
-  src = fetchurl {
-    url = "https://files.pythonhosted.org/packages/b7/44/0f033f653a859f82efb8b72edfa3dd3feba30f94b1784c74149908d9bbfd/cosmic_ray-8.7.0.tar.gz";
-    hash = "sha256-8ejNvZuMnZFFvCs3JHCBtCPR4HnZKaPaMHFLI9QLSnA=";
-  };
+  inherit src;
+  env.SETUPTOOLS_SCM_PRETEND_VERSION = version;
 
   build-system = [ hatchling hatch-vcs ];
   dependencies = [

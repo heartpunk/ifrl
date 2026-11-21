@@ -2,18 +2,20 @@
   description = "Shared suite Nix dependencies and Bazel worker infrastructure";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/e79d204daf01f8a877f7b2ce7324874ce9c84676";
+    cosmic-ray-src = { url = "github:sixty-north/cosmic-ray/master"; flake = false; };
+    exit-codes-src = { url = "github:sixty-north/exit-codes/master"; flake = false; };
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     lean4-nix = {
       url = "github:heartpunk/lean4-nix/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rust-overlay = {
-      url = "github:oxalica/rust-overlay/8ec8a5a41f8d8244e672829c9cd705416139d3f0";
+      url = "github:oxalica/rust-overlay/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, lean4-nix, rust-overlay, ... }:
+  outputs = { self, nixpkgs, lean4-nix, rust-overlay, cosmic-ray-src, exit-codes-src, ... }:
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
@@ -27,6 +29,7 @@
           (import ./nix/angr { inherit patchApplies; }) final prev;
       angrOverlay = final: prev:
         (angrOverlayFor prev.stdenv.hostPlatform.system) final prev;
+      cosmicRayOverlay = import ./nix/cosmic-ray { inherit cosmic-ray-src exit-codes-src; };
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
@@ -36,7 +39,7 @@
             binary = true;
           })
           rust-overlay.overlays.default
-          (import ./nix/cosmic-ray)
+          cosmicRayOverlay
         ];
       };
       pythonFor = system:
@@ -52,11 +55,11 @@
         ]);
     in {
       overlays.angr = angrOverlay;
-      overlays.cosmic-ray = import ./nix/cosmic-ray;
+      overlays.cosmic-ray = cosmicRayOverlay;
 
       lib = {
         inherit lean4-nix rust-overlay;
-        nixpkgsRevision = "e79d204daf01f8a877f7b2ce7324874ce9c84676";
+        nixpkgsRevision = nixpkgs.rev or nixpkgs.dirtyRev or "dirty";
         # Clients keep their module graphs; this closure is added to a worker
         # alongside the shared base when the client's profile is selected.
         worker = import ./nix/reapi.nix;
@@ -65,6 +68,7 @@
       packages = forAllSystems (system:
         let pkgs = pkgsFor system;
         in {
+          actionlint = pkgs.actionlint;
           angr-python = pythonFor system;
           cosmic-ray = pkgs.python312Packages.cosmic-ray;
           exit-codes = pkgs.python312Packages.exit-codes;

@@ -14,6 +14,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Check out the reusable workflow source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .ifrl-audit
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
@@ -23,15 +30,17 @@ jobs:
       - name: Audit workflow syntax and shell commands
         run: |
           mkdir -p ci-reports/actions
-          # Use the suite's pinned nixpkgs rather than a floating tool release.
-          nix shell github:NixOS/nixpkgs/e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3#actionlint \
+          # The locked actionlint predates GitHub's reusable-workflow identity fields.
+          # Keep checking all other expressions until the tool recognizes them.
+          nix shell ./.ifrl-audit#actionlint --no-write-lock-file \
             --command actionlint -ignore 'unexpected key "queue" for "concurrency" section' \
+              -ignore 'property "workflow_(repository|sha)" is not defined' \
             .github/workflows/*.yml 2>&1 | tee ci-reports/actions/actionlint.txt
       - name: Audit workflow security
         if: ${{ !cancelled() }}
         run: |
           mkdir -p ci-reports/actions
-          python -m pip install zizmor==1.31.1
+          python -m pip install -r .ifrl-audit/ci/requirements.txt
           zizmor --offline --format sarif .github > ci-reports/actions/zizmor.sarif
       - name: Preserve GitHub Actions audit reports
         if: always()
