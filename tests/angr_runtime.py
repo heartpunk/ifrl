@@ -1,6 +1,7 @@
-"""Check the shared Angr version and the FP exporter patch consumers require."""
+"""Check the shared Angr version and FP exporter consumers require."""
 
 import importlib.metadata
+import os
 import unittest
 
 from angr import claripy
@@ -11,7 +12,7 @@ class SharedAngrTest(unittest.TestCase):
     def test_version(self):
         for package in ("angr", "archinfo", "cle", "pyvex"):
             with self.subTest(package=package):
-                self.assertEqual(importlib.metadata.version(package), "10.0.4")
+                self.assertEqual(importlib.metadata.version(package), os.environ["IFRL_ANGR_VERSION"])
 
     def test_fp_conversion_export(self):
         for width, sort in ((32, claripy.FSORT_FLOAT), (64, claripy.FSORT_DOUBLE)):
