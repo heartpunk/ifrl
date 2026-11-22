@@ -49,6 +49,11 @@ jobs:
       - name: Check Python source syntax
         run: nix develop .#default --no-write-lock-file --command python3 -m compileall -q python
 
+      - name: Check the shared Angr runtime
+        run: |
+          angr_python="$(nix build .#angr-python --no-link --print-out-paths --no-write-lock-file)"
+          "$angr_python/bin/python" tests/angr_cmpxchg.py
+
       - name: Run REAPI launcher unit tests
         run: nix develop .#default --no-write-lock-file --command python3 bazel/ixyk/tools/reapi_test.py
 

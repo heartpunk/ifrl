@@ -19,6 +19,7 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      angrOverlay = import ./nix/angr;
       cosmicRayOverlay = import ./nix/cosmic-ray { inherit cosmic-ray-src exit-codes-src; };
       pkgsFor = system: import nixpkgs {
         inherit system;
@@ -29,6 +30,7 @@
           })
           rust-overlay.overlays.default
           cosmicRayOverlay
+          angrOverlay
         ];
       };
       pythonFor = system:
@@ -43,6 +45,7 @@
           ps.z3-solver
         ]);
     in {
+      overlays.angr = angrOverlay;
       overlays.cosmic-ray = cosmicRayOverlay;
 
       lib = {

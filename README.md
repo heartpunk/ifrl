@@ -25,6 +25,15 @@ worker/REAPI execution machinery.
 The profile copies are an extraction draft. They preserve current differences
 so the suite can perform a later, focused unification and validation pass.
 
+## Shared Angr runtime
+
+`overlays.angr` applies IFRL's Angr and PyVEX fixes to a Nixpkgs import.
+IFRL uses this overlay for `packages.<system>.angr-python` and its development
+shell. Clients can reuse that package directly, or include the overlay when
+they need to construct a Python environment from the same Nixpkgs input. Patch
+files link to their upstream changes and should be removed once the pinned
+dependencies include the fixes.
+
 ## Suite source-reference audit
 
 `ci/suite_refs.py` accepts explicit checkout roots, finds Nix, Bazel, Lake,
