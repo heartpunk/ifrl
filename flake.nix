@@ -19,21 +19,13 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      angrOverlayFor = system:
-        let
-          stockPkgs = import nixpkgs { inherit system; };
-          patchApplies =
-            import ./nix/angr/check-patch.nix { pkgs = stockPkgs; };
-        in
-        final: prev:
-          (import ./nix/angr { inherit patchApplies; }) final prev;
-      angrOverlay = final: prev:
-        (angrOverlayFor prev.stdenv.hostPlatform.system) final prev;
+      # Preserve the exported overlay for consumers; the locked Angr includes the upstream fix.
+      angrOverlay = _final: _prev: { };
       cosmicRayOverlay = import ./nix/cosmic-ray { inherit cosmic-ray-src exit-codes-src; };
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
-          (angrOverlayFor system)
+          angrOverlay
           (lean4-nix.readToolchainFile {
             toolchain = ./lean-toolchain;
             binary = true;
