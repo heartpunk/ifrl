@@ -10,7 +10,6 @@ let
         toolchain = ../../../../lean-toolchain;
         binary = true;
       })
-      ifrl.overlays.angr
       (final: prev: {
         python312 = prev.python312.override (old: {
           packageOverrides = nixpkgs.lib.composeExtensions
