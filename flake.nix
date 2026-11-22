@@ -19,13 +19,10 @@
     let
       systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      # Preserve the exported overlay for consumers; the locked Angr includes the upstream fix.
-      angrOverlay = _final: _prev: { };
       cosmicRayOverlay = import ./nix/cosmic-ray { inherit cosmic-ray-src exit-codes-src; };
       pkgsFor = system: import nixpkgs {
         inherit system;
         overlays = [
-          angrOverlay
           (lean4-nix.readToolchainFile {
             toolchain = ./lean-toolchain;
             binary = true;
@@ -46,7 +43,6 @@
           ps.z3-solver
         ]);
     in {
-      overlays.angr = angrOverlay;
       overlays.cosmic-ray = cosmicRayOverlay;
 
       lib = {
@@ -73,7 +69,6 @@
         in {
           default = pkgs.mkShell {
             IFRL_ANGR_ENVIRONMENT = "${python}";
-            IFRL_ANGR_VERSION = pkgs.python312Packages.angr.version;
             IFRL_AST_GREP = "${pkgs.ast-grep}/bin/ast-grep";
             IFRL_TREE_SITTER_LEAN_PARSER = "${pkgs.tree-sitter-grammars.tree-sitter-lean}/parser";
             packages = [

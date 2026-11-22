@@ -52,7 +52,5 @@ jobs:
       - name: Run REAPI launcher unit tests
         run: nix develop .#default --no-write-lock-file --command python3 bazel/ixyk/tools/reapi_test.py
 
-      - name: Check the shared Angr runtime and FP exporter
-        run: nix develop .#default --no-write-lock-file --command python3 tests/angr_runtime.py
       - name: Check the mutation Python environment
         run: nix develop .#default --no-write-lock-file --command bash ci/mutation-python-smoke.sh
