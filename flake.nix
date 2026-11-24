@@ -6,7 +6,7 @@
     exit-codes-src = { url = "github:sixty-north/exit-codes/master"; flake = false; };
     nixpkgs.url = "github:NixOS/nixpkgs/master";
     lean4-nix = {
-      url = "github:heartpunk/lean4-nix/main";
+      url = "github:heartpunk/lean4-nix/b5ca27c743f3c437ca564392d78efb2fa3505fb0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     rust-overlay = {
